@@ -1,0 +1,12 @@
+.idea/
+.vscode/
+*.zip
+agorartc
+target/
+x64/
+bin/
+libs/
+CSharp-API_Example/.vs/
+CSharp-API_Example/binx64/
+CSharp-API_Example/binx86/
+CSharp-API_Example/obj/
