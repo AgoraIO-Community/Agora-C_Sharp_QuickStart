@@ -59,7 +59,7 @@
       </EmbeddedResource>
     </ItemGroup>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="Copy &quot;$(SolutionDir)..\libs\x86_64\*.*&quot; &quot;$(TargetDir)&quot;" />
+      <Exec Command="if not exist %25$(TargetDir)agora_rtc_sdk.dll%25 (&#xD;&#xA;Copy &quot;$(SolutionDir)..\libs\x86_64\*.*&quot; &quot;$(TargetDir)&quot;)" />
     </Target>
 
 </Project>
