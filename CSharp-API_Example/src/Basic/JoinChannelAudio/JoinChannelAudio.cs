@@ -14,12 +14,12 @@ using agora.rtc;
 
 namespace CSharp_API_Example
 {
-    public class Audio1To1 : IEngine
+    public class JoinChannelAudio : IEngine
     {
         private string app_id_ = "";
         private string channel_id_ = "";
-        private readonly string Audio1To1_TAG = "[Audio1To1] ";
-        private readonly string log_file_path = "CSharp_API_Example.log";
+        private readonly string JoinChannelAudio_TAG = "[JoinChannelAudio] ";
+        private readonly string agora_sdk_log_file_path_ = "agorasdk.log";
         private IAgoraRtcEngine rtc_engine_ = null;
         private IAgoraRtcEngineEventHandler event_handler_ = null;
 
@@ -35,13 +35,12 @@ namespace CSharp_API_Example
                 rtc_engine_ = AgoraRtcEngine.CreateAgoraRtcEngine();
             }
 
-            RtcEngineContext rtc_engine_ctx = new RtcEngineContext(app_id_);
+            LogConfig log_config = new LogConfig(agora_sdk_log_file_path_);
+            RtcEngineContext rtc_engine_ctx = new RtcEngineContext(app_id_, AREA_CODE.AREA_CODE_GLOB, log_config);
             ret = rtc_engine_.Initialize(rtc_engine_ctx);
-            CSharpForm.dump_handler_(Audio1To1_TAG + "Initialize", ret);
-            ret = rtc_engine_.SetLogFile(log_file_path);
-            CSharpForm.dump_handler_(Audio1To1_TAG + "SetLogFile", ret);
+            CSharpForm.dump_handler_(JoinChannelAudio_TAG + "Initialize", ret);
 
-            event_handler_ = new Audio1To1EventHandler();
+            event_handler_ = new JoinChannelAudioEventHandler();
             rtc_engine_.InitEventHandler(event_handler_);
 
             return ret;
@@ -53,7 +52,7 @@ namespace CSharp_API_Example
             if (null != rtc_engine_)
             {
                 ret = rtc_engine_.LeaveChannel();
-                CSharpForm.dump_handler_(Audio1To1_TAG + "LeaveChannel", ret);
+                CSharpForm.dump_handler_(JoinChannelAudio_TAG + "LeaveChannel", ret);
 
                 rtc_engine_.Dispose();
                 rtc_engine_ = null;
@@ -67,10 +66,10 @@ namespace CSharp_API_Example
             if (null != rtc_engine_)
             {
                 ret = rtc_engine_.EnableAudio();
-                CSharpForm.dump_handler_(Audio1To1_TAG + "EnableAudio", ret);
+                CSharpForm.dump_handler_(JoinChannelAudio_TAG + "EnableAudio", ret);
 
                 ret = rtc_engine_.JoinChannel("", channel_id_, "info");
-                CSharpForm.dump_handler_(Audio1To1_TAG + "JoinChannel", ret);
+                CSharpForm.dump_handler_(JoinChannelAudio_TAG + "JoinChannel", ret);
             }
             return ret;
         }
@@ -81,7 +80,7 @@ namespace CSharp_API_Example
             if (null != rtc_engine_)
             {
                 ret = rtc_engine_.LeaveChannel();
-                CSharpForm.dump_handler_(Audio1To1_TAG + "LeaveChannel", ret);
+                CSharpForm.dump_handler_(JoinChannelAudio_TAG + "LeaveChannel", ret);
             }
             return ret;
         }
@@ -101,7 +100,7 @@ namespace CSharp_API_Example
     }
 
     // override if need
-    internal class Audio1To1EventHandler : IAgoraRtcEngineEventHandler
+    internal class JoinChannelAudioEventHandler : IAgoraRtcEngineEventHandler
     {
         public override void OnWarning(int warn, string msg)
         {

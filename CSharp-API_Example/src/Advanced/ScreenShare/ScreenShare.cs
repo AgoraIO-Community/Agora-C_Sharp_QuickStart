@@ -26,7 +26,7 @@ namespace CSharp_API_Example
         private string app_id_ = "";
         private string channel_id_ = "";
         private readonly string ScreenShare_TAG = "[ScreenShare] ";
-        private readonly string log_file_path = "CSharp_API_Example.log";
+        private readonly string agora_sdk_log_file_path_ = "agorasdk.log";
         private IAgoraRtcEngine rtc_engine_ = null;
         private IAgoraRtcEngineEventHandler event_handler_ = null;
         private IAgoraRtcEngine screen_share_engine_ = null;
@@ -50,12 +50,10 @@ namespace CSharp_API_Example
             {
                 rtc_engine_ = AgoraRtcEngine.CreateAgoraRtcEngine();
             }
-
-            RtcEngineContext rtc_engine_ctx = new RtcEngineContext(app_id_);
+            LogConfig log_config = new LogConfig(agora_sdk_log_file_path_);
+            RtcEngineContext rtc_engine_ctx = new RtcEngineContext(app_id_, AREA_CODE.AREA_CODE_GLOB, log_config);
             ret = rtc_engine_.Initialize(rtc_engine_ctx);
             CSharpForm.dump_handler_("Initialize", ret);
-            ret = rtc_engine_.SetLogFile(log_file_path);
-            CSharpForm.dump_handler_(ScreenShare_TAG + "SetLogFile", ret);
             event_handler_ = new ScreenShareEventHandler(this);
             rtc_engine_.InitEventHandler(event_handler_);
 
@@ -214,11 +212,11 @@ namespace CSharp_API_Example
     // override if need
     internal class ScreenShareEventHandler : IAgoraRtcEngineEventHandler
     {
-        private ScreenShare screen_share_inst_ = null;
+        private ScreenShare screenShare_inst_ = null;
 
-        public ScreenShareEventHandler(ScreenShare screen_share)
+        public ScreenShareEventHandler(ScreenShare _screenShare)
         {
-            screen_share_inst_ = screen_share;
+            screenShare_inst_ = _screenShare;
         }
 
         public override void OnWarning(int warn, string msg)
@@ -234,8 +232,8 @@ namespace CSharp_API_Example
         public override void OnJoinChannelSuccess(string channel, uint uid, int elapsed)
         {
             Console.WriteLine("----->OnJoinChannelSuccess, channel={0}, uid={1}", channel, uid);
-            VideoCanvas vs = new VideoCanvas((ulong)screen_share_inst_.GetLocalWinId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, channel);
-            int ret = screen_share_inst_.GetEngine().SetupLocalVideo(vs);
+            VideoCanvas vs = new VideoCanvas((ulong)screenShare_inst_.GetLocalWinId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, channel);
+            int ret = screenShare_inst_.GetEngine().SetupLocalVideo(vs);
             Console.WriteLine("----->SetupLocalVideo, ret={0}", ret);
         }
 
@@ -252,9 +250,9 @@ namespace CSharp_API_Example
         public override void OnUserJoined(uint uid, int elapsed)
         {
             Console.WriteLine("----->OnUserJoined, uid={0}", uid);
-            if (screen_share_inst_.GetRemoteWinId() == IntPtr.Zero) return;
-            var vc = new VideoCanvas((ulong)screen_share_inst_.GetRemoteWinId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, screen_share_inst_.GetChannelId(), uid);
-            int ret = screen_share_inst_.GetEngine().SetupRemoteVideo(vc);
+            if (screenShare_inst_.GetRemoteWinId() == IntPtr.Zero) return;
+            var vc = new VideoCanvas((ulong)screenShare_inst_.GetRemoteWinId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, screenShare_inst_.GetChannelId(), uid);
+            int ret = screenShare_inst_.GetEngine().SetupRemoteVideo(vc);
             Console.WriteLine("----->OnUserJoined, ret={0}", ret);
         }
 

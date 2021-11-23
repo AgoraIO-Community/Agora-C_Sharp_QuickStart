@@ -19,7 +19,7 @@ namespace CSharp_API_Example
         private string app_id_ = "";
         private string channel_id_ = "";
         private readonly string VideoGroup_TAG = "[VideoGroup] ";
-        private readonly string log_file_path = "CSharp_API_Example.log";
+        private readonly string agora_sdk_log_file_path_ = "agorasdk.log";
         private IAgoraRtcEngine rtc_engine_ = null;
         private IAgoraRtcEngineEventHandler event_handler_ = null;
         private IntPtr local_win_id_ = IntPtr.Zero;
@@ -43,11 +43,10 @@ namespace CSharp_API_Example
             {
                 rtc_engine_ = AgoraRtcEngine.CreateAgoraRtcEngine();
             }
-            RtcEngineContext rtc_engine_ctx = new RtcEngineContext(app_id_);
+            LogConfig log_config = new LogConfig(agora_sdk_log_file_path_);
+            RtcEngineContext rtc_engine_ctx = new RtcEngineContext(app_id_, AREA_CODE.AREA_CODE_GLOB, log_config);
             ret = rtc_engine_.Initialize(rtc_engine_ctx);
             CSharpForm.dump_handler_(VideoGroup_TAG + "Initialize", ret);
-            ret = rtc_engine_.SetLogFile(log_file_path);
-            CSharpForm.dump_handler_(VideoGroup_TAG + "SetLogFile", ret);
             event_handler_ = new VideoGroupEventHandler(this);
             rtc_engine_.InitEventHandler(event_handler_);
 
@@ -129,11 +128,11 @@ namespace CSharp_API_Example
     // override if need
     internal class VideoGroupEventHandler : IAgoraRtcEngineEventHandler
     {
-        private VideoGroup video_group_inst = null;
-        private int remote_win_idx = 0;
-        public VideoGroupEventHandler(VideoGroup video_group)
+        private VideoGroup videoGroup_inst_ = null;
+        private int remoteWin_idx_ = 0;
+        public VideoGroupEventHandler(VideoGroup _videoGroup)
         {
-            video_group_inst = video_group;
+            videoGroup_inst_ = _videoGroup;
         }
         
         public override void OnWarning(int warn, string msg)
@@ -149,7 +148,7 @@ namespace CSharp_API_Example
         public override void OnJoinChannelSuccess(string channel, uint uid, int elapsed)
         {
             Console.WriteLine("----->OnJoinChannelSuccess, channel={0}, uid={1}", channel, uid);
-            VideoCanvas vs = new VideoCanvas((ulong)video_group_inst.GetLocalWindowId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, channel);
+            VideoCanvas vs = new VideoCanvas((ulong)videoGroup_inst_.GetLocalWindowId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, channel);
             int ret = CSharpForm.usr_engine_.GetEngine().SetupLocalVideo(vs);
             Console.WriteLine("----->SetupLocalVideo, ret={0}", ret);
         }
@@ -170,13 +169,13 @@ namespace CSharp_API_Example
             VideoCanvas vc = null;
 
             // only consider two users here
-            if (remote_win_idx++ % 2 == 0)
+            if (remoteWin_idx_++ % 2 == 0)
             {
-                vc = new VideoCanvas((ulong)video_group_inst.GetRemoteFirstWinId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, video_group_inst.GetChannelId(), uid);
+                vc = new VideoCanvas((ulong)videoGroup_inst_.GetRemoteFirstWinId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, videoGroup_inst_.GetChannelId(), uid);
             }
             else
             {
-                vc = new VideoCanvas((ulong)video_group_inst.GetRemoteSecondWinId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, video_group_inst.GetChannelId(), uid);
+                vc = new VideoCanvas((ulong)videoGroup_inst_.GetRemoteSecondWinId(), RENDER_MODE_TYPE.RENDER_MODE_FIT, videoGroup_inst_.GetChannelId(), uid);
             }
                 int ret = CSharpForm.usr_engine_.GetEngine().SetupRemoteVideo(vc);
             Console.WriteLine("----->OnUserJoined, ret={0}", ret);
